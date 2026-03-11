@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: sc_user
+      POSTGRES_PASSWORD: sc_password
+      POSTGRES_DB: drone_telemetry
+    ports:
+      - "5432:5432"
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
+        - ./db/migrations:/docker-entrypoint-initdb.d
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
