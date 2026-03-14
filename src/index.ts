@@ -34,10 +34,9 @@ fastify.get<{ Params: { droneId: string } }>(
     const results =
       await droneTelemetryRepository.getTelemetryByDroneId(droneId);
 
-    if(results.length === 0)
-    {
+    if (results.length === 0) {
       reply.statusCode = 404;
-      return { status : `Error :: No results were found for Drone ${droneId}`}
+      return { status: `Error :: No results were found for Drone ${droneId}`};
     }
 
     reply.statusCode = 200;
