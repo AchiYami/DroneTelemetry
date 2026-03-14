@@ -28,4 +28,11 @@ export const deadLetterRepository = {
 
     return result.rows;
   },
+
+  async getUnresolvedDeadLetterEntries() {
+    const result = await pool.query(
+      `SELECT * from dead_letter_telemetry where resolved = false`,
+    );
+    return result.rows;
+  },
 };
