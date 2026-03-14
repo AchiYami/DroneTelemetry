@@ -9,6 +9,9 @@ CREATE TABLE dead_letter_telemetry (
     notes TEXT
 )
 
+CREATE INDEX idx_dead_letter_drone_id
+ON dead_letter_telemetry(drone_id);
+
 CREATE INDEX idx_dead_letter_unresolved
   ON dead_letter_telemetry(resolved)
   WHERE resolved = FALSE;
