@@ -4,6 +4,8 @@ import pool from "./db/dbClient";
 import { RawDroneTelemetry } from "./types/rawDroneTelemetry";
 import { droneTelemetryRepository } from "./db/droneTelemetry.repository";
 import { ValidDroneTelemetry } from "./types/validDroneTelemetry";
+import { deadLetterRepository } from "./db/deadLetter.repository";
+import { DeadLetterEntry } from "./types/deadLetterTelemetry";
 
 const fastify = Fastify({
   logger: true,
@@ -69,6 +71,34 @@ fastify.post<{ Body: RawDroneTelemetry }>(
     };
 
     droneTelemetryRepository.createTelemetryEntry(validatedTelemetry);
+  },
+);
+
+fastify.get<{ Params: { droneId: string | null } }>(
+  "/deadLetter/droneId/:droneId",
+  async function handler(request, reply) {
+    let { droneId } = request.params;
+
+    //Allow for the potential of an empty droneId parameter to return any
+    //entries with missing drone IDs
+    if (droneId === null || droneId === undefined || droneId.length === 0) {
+      droneId = "unknown";
+    }
+
+    console.log("Drone ID is:", droneId);
+
+    const results =
+      await deadLetterRepository.getDeadLetterEntryByDroneId(droneId);
+
+    if (results.length === 0) {
+      reply.statusCode = 404;
+      return {
+        status: `Error :: No dead letter results were found for Drone ${droneId}`,
+      };
+    }
+
+    reply.statusCode = 200;
+    return { count: results.length, results };
   },
 );
 
