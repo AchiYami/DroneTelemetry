@@ -110,6 +110,17 @@ fastify.get<{ Params: { droneId: string | null } }>(
   },
 );
 
+fastify.get("/deadLetter/", async function handler(request, reply) {
+  const results = await deadLetterRepository.getUnresolvedDeadLetterEntries();
+
+  if (results.length === 0) {
+    reply.statusCode = 404;
+    return { status: "Error :: No dead letter entries have been found." };
+  }
+
+  return { count: results.length, results };
+});
+
 const start = async () => {
   try {
     await fastify.listen({ port: 3000 });
