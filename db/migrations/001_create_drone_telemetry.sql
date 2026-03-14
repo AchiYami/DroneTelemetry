@@ -17,4 +17,4 @@ CREATE INDEX idx_telemetry_timestamp
   ON drone_telemetry(timestamp DESC);
 
 CREATE INDEX idx_telemetry_payload 
-  ON drone_telemetry USING GIN(payload jsonb_path_ops);
+  ON drone_telemetry USING GIN(telemetry jsonb_path_ops);
