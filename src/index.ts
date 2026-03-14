@@ -19,6 +19,30 @@ fastify.get("/testConnection", async function handler(request, reply) {
   return `Database Connection String: ${db.options.connectionString}`;
 });
 
+fastify.get<{ Params: { droneId: string } }>(
+  "/droneTelemetry/:droneId",
+  async function handler(request, reply) {
+    const { droneId } = request.params;
+
+    if (droneId === null || droneId === undefined) {
+      reply.statusCode = 400;
+      return { status: "Error :: No Drone ID was provided." };
+    }
+
+    const results =
+      await droneTelemetryRepository.getTelemetryByDroneId(droneId);
+
+    if(results.length === 0)
+    {
+      reply.statusCode = 404;
+      return { status : `Error :: No results were found for Drone ${droneId}`}
+    }
+
+    reply.statusCode = 200;
+    return { count: results.length, results };
+  },
+);
+
 fastify.post<{ Body: RawDroneTelemetry }>(
   "/createDroneTelemetry",
   async function handler(request, reply) {
