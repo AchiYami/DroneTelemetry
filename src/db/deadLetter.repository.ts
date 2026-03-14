@@ -1,11 +1,11 @@
 import pool from "./dbClient";
 import { DeadLetterEntry } from "../types/deadLetterTelemetry";
 
-//TODO:: Add the ability to mark a dead letter event as 'investigated'/'resolved
-//TODO:: Find Dead Letters by Drone ID
-//TODO:: Find Dead Letters by Unresolved
-
 export const deadLetterRepository = {
+  /**
+   * Creates a Dead Letter Entry for an attempted drone telemetry payload.
+   * @param telemetry - the dead letter entry to save
+   */
   async createDeadLetterEntry(telemetry: DeadLetterEntry): Promise<void> {
     await pool.query(
       `INSERT into dead_letter_telemetry
@@ -20,6 +20,12 @@ export const deadLetterRepository = {
     );
   },
 
+  /**
+   * Retrieves all dead letter entries for a given drone ID.
+   * @param droneId - The ID of the drone to filter by, leave empty or 'unknown' to search for bad drone IDs
+   * @param limit - the maximum amount of rows to return in one go
+   * @returns A list of dead letter entries with a given drone id
+   */
   async getDeadLetterEntryByDroneId(droneId: string | null, limit = 100) {
     const result = await pool.query(
       `SELECT * from dead_letter_telemetry where drone_id = $1 ORDER BY received_at DESC LIMIT $2`,
@@ -29,6 +35,10 @@ export const deadLetterRepository = {
     return result.rows;
   },
 
+  /**
+   * Retrieves all unresolved dead letter entries.
+   * @returns A list of all dead letter entries where resolved is false
+   */
   async getUnresolvedDeadLetterEntries() {
     const result = await pool.query(
       `SELECT * from dead_letter_telemetry where resolved = false`,
