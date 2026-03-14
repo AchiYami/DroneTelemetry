@@ -121,6 +121,29 @@ fastify.get("/deadLetter/", async function handler(request, reply) {
   return { count: results.length, results };
 });
 
+fastify.put<{ Params: { id: number }; Body: { notes: string | undefined } }>(
+  "/deadLetter/:id/resolve",
+  async function handler(request, reply) {
+    const { id } = request.params;
+    const notes = request.body.notes;
+
+    if (id === null || id === undefined || id < 1) {
+      reply.statusCode = 500;
+      return {
+        status:
+          "Error :: Invalid Dead Letter ID supplied. ID must be not null and greater than 0",
+      };
+    }
+
+    deadLetterRepository.markDeadLetterEntryAsResolved(id, notes);
+    reply.statusCode = 200;
+
+    return {
+      status: `Success :: Dead Letter Entry ${id} has been marked as resolved.`,
+    };
+  },
+);
+
 const start = async () => {
   try {
     await fastify.listen({ port: 3000 });
