@@ -1,4 +1,10 @@
+import "dotenv/config";
 import Fastify from "fastify";
+import pool from "./db/dbClient";
+import { RawDroneTelemetry } from "./types/rawDroneTelemetry";
+import { droneTelemetryRepository } from "./db/droneTelemetry.repository";
+import { ValidDroneTelemetry } from "./types/validDroneTelemetry";
+
 const fastify = Fastify({
   logger: true,
 });
@@ -6,6 +12,48 @@ const fastify = Fastify({
 fastify.get("/", async function handler(request, reply) {
   return "Hello World!";
 });
+
+fastify.get("/testConnection", async function handler(request, reply) {
+  const db = pool;
+
+  return `Database Connection String: ${db.options.connectionString}`;
+});
+
+fastify.post<{ Body: RawDroneTelemetry }>(
+  "/createDroneTelemetry",
+  async function handler(request, reply) {
+    const telemetry = request.body;
+
+    if (
+      telemetry.droneId === null ||
+      telemetry.droneId === undefined ||
+      telemetry.droneId.length === 0
+    ) {
+      //Internal logging
+      fastify.log.error("Error :: Drone has no ID");
+
+      //User error
+      reply.statusCode = 400;
+      return { status: "Error :: Drone has no ID." };
+    }
+
+    fastify.log.info("Received Telemetry!!");
+    fastify.log.info(
+      `Drone ${telemetry.droneId} posted telemetry from ${telemetry.timestamp}, with the following payload: `,
+    );
+    fastify.log.info(`Event: ${telemetry.eventType}`);
+    fastify.log.info(`${JSON.stringify(telemetry.telemetry)}`);
+
+    const validatedTelemetry: ValidDroneTelemetry = {
+      droneId: telemetry.droneId,
+      timestamp: new Date(telemetry.timestamp),
+      eventType: telemetry.eventType,
+      telemetry: telemetry.telemetry,
+    };
+
+    droneTelemetryRepository.createTelemetryEntry(validatedTelemetry);
+  },
+);
 
 const start = async () => {
   try {
@@ -15,6 +63,5 @@ const start = async () => {
     process.exit(1);
   }
 };
-
 
 start();
