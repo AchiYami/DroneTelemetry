@@ -20,4 +20,22 @@ export const droneTelemetryRepository = {
       ],
     );
   },
+
+  /**
+   * 
+   * @param droneId - ID of the Drone to filter events by
+   * @param limit - the maximum number of events to return (100 default)
+   * @returns database entries that contain the given drone id
+   */
+  async getTelemetryByDroneId(droneId: string, limit = 100) {
+    const result = await pool.query(
+      `SELECT * FROM drone_telemetry 
+      WHERE drone_id = $1 
+      ORDER BY timestamp DESC
+      LIMIT $2`,
+      [droneId, limit],
+    );
+
+    return result.rows;
+  },
 };
