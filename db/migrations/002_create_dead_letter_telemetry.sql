@@ -1,5 +1,5 @@
 CREATE TABLE dead_letter_telemetry (
-    id SERIAL PRIMARY KEY
+    id SERIAL PRIMARY KEY,
     received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     raw_payload JSONB NOT NULL,
     failure_reason TEXT NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE dead_letter_telemetry (
     resolved BOOLEAN NOT NULL DEFAULT FALSE,
     resolved_at TIMESTAMPTZ,
     notes TEXT
-)
+);
 
 CREATE INDEX idx_dead_letter_drone_id
 ON dead_letter_telemetry(drone_id);
