@@ -7,5 +7,5 @@ export interface RawDroneTelemetry {
   droneId: string;
   timestamp: string;
   eventType: DroneEventType;
-  payload: Record<string, unknown>; //Unknown is type-safe version of 'any'
+  telemetry: Record<string, unknown>; //Unknown is type-safe version of 'any'
 }

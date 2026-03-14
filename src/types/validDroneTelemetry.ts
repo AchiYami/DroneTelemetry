@@ -7,5 +7,5 @@ export interface ValidDroneTelemetry {
   droneId: string;
   timestamp: Date;
   eventType: DroneEventType;
-  payload: Record<string, unknown>;
+  telemetry: Record<string, unknown>;
 }
