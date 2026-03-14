@@ -61,13 +61,6 @@ fastify.post<{ Body: RawDroneTelemetry }>(
       return { status: "Error :: Drone has no ID." };
     }
 
-    fastify.log.info("Received Telemetry!!");
-    fastify.log.info(
-      `Drone ${telemetry.droneId} posted telemetry from ${telemetry.timestamp}, with the following payload: `,
-    );
-    fastify.log.info(`Event: ${telemetry.eventType}`);
-    fastify.log.info(`${JSON.stringify(telemetry.telemetry)}`);
-
     const validatedTelemetry: ValidDroneTelemetry = {
       droneId: telemetry.droneId,
       timestamp: new Date(telemetry.timestamp),
