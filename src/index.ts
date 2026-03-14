@@ -58,6 +58,15 @@ fastify.post<{ Body: RawDroneTelemetry }>(
       //Internal logging
       fastify.log.error("Error :: Drone has no ID");
 
+      //add to dead letter table
+      const deadLetter: DeadLetterEntry = {
+        droneId: "unknown",
+        failureReason: "Missing Drone ID",
+        rawPayload: JSON.stringify(telemetry),
+        receivedAt: new Date(),
+      };
+      deadLetterRepository.createDeadLetterEntry(deadLetter);
+
       //User error
       reply.statusCode = 400;
       return { status: "Error :: Drone has no ID." };
