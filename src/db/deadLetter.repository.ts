@@ -35,4 +35,23 @@ export const deadLetterRepository = {
     );
     return result.rows;
   },
+
+  /**
+   * Marks a dead letter entry as resolved, and records any notes against it.
+   * @param id The ID of the Dead Letter Entry to resolve
+   * @param notes Notes to go against the entry (optional)
+   */
+  async markDeadLetterEntryAsResolved(
+    id: number,
+    notes?: string,
+  ): Promise<void> {
+    await pool.query(
+      `UPDATE dead_letter_telemetry
+            SET resolved = TRUE,
+                resolved_at = NOW(),
+                notes = $2
+            WHERE id = $1`,
+      [id, notes ?? null],
+    );
+  },
 };
