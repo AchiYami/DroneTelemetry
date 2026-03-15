@@ -3,6 +3,7 @@
  */
 export type DroneEventType =
   | "battery_log"
+  | "delivery_received"
   | "delivery_begin"
   | "delivery_complete"
   | "delivery_failed"
