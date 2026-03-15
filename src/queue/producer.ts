@@ -18,4 +18,20 @@ export const producer = {
       },
     });
   },
+
+    async pushBatch(events: RawDroneTelemetry[]): Promise<void> {
+    await telemetryQueue.addBulk(
+      events.map(event => ({
+        name: 'telemetry_event',
+        data: event,
+        opts: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000
+          }
+        }
+      }))
+    );
+  }
 };
