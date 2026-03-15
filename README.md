@@ -9,7 +9,7 @@ Any malformed, corrupt or bad data is stored in a separate dead letter table, fo
 
 ## Architecture
 
-<<IMAGE OF ARCHITECTURE>>
+
 
 ### Drone Simulator
 Each drone is modelled as a state machine using Node's built-in `EventEmitter`. 
@@ -249,52 +249,52 @@ This payload will fail validation on a single entry. The first four entries will
 
 ```json
 [
-  {
-    "droneId": "drone-999",
-    "timestamp": "2026-03-15T10:00:00.000Z",
-    "eventType": "battery_log",
-    "telemetry": {
-      "batteryLevel": 74,
-    }
-  },
-  {
-    "droneId": "drone-999",
-    "timestamp": "2026-03-15T10:01:00.000Z",
-    "eventType": "delivery_complete",
-    "telemetry": {
-      "packageId": "pkg-5678",
-      "recipientId": "recipient-42",
-      "latitude": 54.597,
-      "longitude": -5.93,
-      "batteryLevel": 60
-    }
-  },
-  {
-    "droneId": "drone-1000",
-    "timestamp": "2026-03-15T10:02:00.000Z",
-    "eventType": "route_adjustment",
-    "telemetry": {
-      "previousRoute": "route-12",
-      "newRoute": "route-17",
-      "reason": "weather"
-    }
-  },
-  {
-    "droneId": "drone-1000",
-    "timestamp": "2026-03-15T10:03:00.000Z",
-    "eventType": "shutdown",
-    "telemetry": {
-      "reason": "battery_depleted",
-    }
-  },
-  {
-    "droneId": "drone-1001",
-    "timestamp": "2026-03-15T10:04:00.000Z",
-    "eventType": "battery_log",
-    "telemetry": {
-      "batteryLevel": 999,
-    }
-  }
+  {
+    "droneId": "drone-999",
+    "timestamp": "2026-03-15T10:00:00.000Z",
+    "eventType": "battery_log",
+    "telemetry": {
+      "batteryLevel": 74
+    }
+  },
+  {
+    "droneId": "drone-999",
+    "timestamp": "2026-03-15T10:01:00.000Z",
+    "eventType": "delivery_complete",
+    "telemetry": {
+      "packageId": "pkg-5678",
+      "recipientId": "recipient-42",
+      "latitude": 54.597,
+      "longitude": -5.93,
+      "batteryLevel": 60
+    }
+  },
+  {
+    "droneId": "drone-1000",
+    "timestamp": "2026-03-15T10:02:00.000Z",
+    "eventType": "route_adjustment",
+    "telemetry": {
+      "previousRoute": "route-12",
+      "newRoute": "route-17",
+      "reason": "weather"
+    }
+  },
+  {
+    "droneId": "drone-1000",
+    "timestamp": "2026-03-15T10:03:00.000Z",
+    "eventType": "shutdown",
+    "telemetry": {
+      "reason": "battery_depleted"
+    }
+  },
+  {
+    "droneId": "drone-1001",
+    "timestamp": "2026-03-15T10:04:00.000Z",
+    "eventType": "battery_log",
+    "telemetry": {
+      "batteryLevel": 999
+    }
+  }
 ]
 ```
 
@@ -314,33 +314,33 @@ Returns all telemetry events for a specific drone, ordered by timestamp descendi
 **Example Response**
 ```json
 {
-    "count": 2,
-    "results": [
-        {
-            "id": 603,
-            "drone_id": "drone-999",
-            "event_type": "delivery_complete",
-            "timestamp": "2026-03-15T10:01:00.000Z",
-            "telemetry": {
-                "latitude": 54.597,
-                "longitude": -5.93,
-                "packageId": "pkg-5678",
-                "recipientId": "recipient-42",
-                "batteryLevel": 60
-            },
-            "created_at": "2026-03-15T14:40:00.453Z"
-        },
-        {
-            "id": 602,
-            "drone_id": "drone-999",
-            "event_type": "battery_log",
-            "timestamp": "2026-03-15T10:00:00.000Z",
-            "telemetry": {
-                "batteryLevel": 74
-            },
-            "created_at": "2026-03-15T14:40:00.445Z"
-        }
-    ]
+  "count": 2,
+  "results": [
+    {
+      "id": 603,
+      "drone_id": "drone-999",
+      "event_type": "delivery_complete",
+      "timestamp": "2026-03-15T10:01:00.000Z",
+      "telemetry": {
+        "latitude": 54.597,
+        "longitude": -5.93,
+        "packageId": "pkg-5678",
+        "recipientId": "recipient-42",
+        "batteryLevel": 60
+      },
+      "created_at": "2026-03-15T14:40:00.453Z"
+    },
+    {
+      "id": 602,
+      "drone_id": "drone-999",
+      "event_type": "battery_log",
+      "timestamp": "2026-03-15T10:00:00.000Z",
+      "telemetry": {
+        "batteryLevel": 74
+      },
+      "created_at": "2026-03-15T14:40:00.445Z"
+    }
+  ]
 }
 ```
 
@@ -353,47 +353,47 @@ Returns all unresolved dead letter telemetry
 **Example Response**
 ```json
 {
-    "count": 2,
-    "results": [
-        {
-            "id": 1,
-            "received_at": "2026-03-15T14:30:34.283Z",
-            "raw_payload": {
-                "droneId": "drone-15",
-                "eventType": "route_adjustment",
-                "telemetry": {
-                    "reason": "traffic",
-                    "newRoute": "route-43",
-                    "previousRoute": "route-35"
-                },
-                "timestamp": "2026-03-15T14:30:34.202Z"
-            },
-            "failure_reason": "telemetry.reason Invalid option: expected one of \"weather\"|\"obstacle\"|\"battery\"",
-            "drone_id": "drone-15",
-            "resolved": false,
-            "resolved_at": null,
-            "notes": null
-        },
-        {
-            "id": 2,
-            "received_at": "2026-03-15T14:32:04.621Z",
-            "raw_payload": {
-                "droneId": "drone-11",
-                "eventType": "route_adjustment",
-                "telemetry": {
-                    "reason": "traffic",
-                    "newRoute": "route-35",
-                    "previousRoute": "route-31"
-                },
-                "timestamp": "2026-03-15T14:32:04.539Z"
-            },
-            "failure_reason": "telemetry.reason Invalid option: expected one of \"weather\"|\"obstacle\"|\"battery\"",
-            "drone_id": "drone-11",
-            "resolved": false,
-            "resolved_at": null,
-            "notes": null
-        }
-    ]
+  "count": 2,
+  "results": [
+    {
+      "id": 1,
+      "received_at": "2026-03-15T14:30:34.283Z",
+      "raw_payload": {
+        "droneId": "drone-15",
+        "eventType": "route_adjustment",
+        "telemetry": {
+          "reason": "traffic",
+          "newRoute": "route-43",
+          "previousRoute": "route-35"
+        },
+        "timestamp": "2026-03-15T14:30:34.202Z"
+      },
+      "failure_reason": "telemetry.reason Invalid option: expected one of \"weather\"|\"obstacle\"|\"battery\"",
+      "drone_id": "drone-15",
+      "resolved": false,
+      "resolved_at": null,
+      "notes": null
+    },
+    {
+      "id": 2,
+      "received_at": "2026-03-15T14:32:04.621Z",
+      "raw_payload": {
+        "droneId": "drone-11",
+        "eventType": "route_adjustment",
+        "telemetry": {
+          "reason": "traffic",
+          "newRoute": "route-35",
+          "previousRoute": "route-31"
+        },
+        "timestamp": "2026-03-15T14:32:04.539Z"
+      },
+      "failure_reason": "telemetry.reason Invalid option: expected one of \"weather\"|\"obstacle\"|\"battery\"",
+      "drone_id": "drone-11",
+      "resolved": false,
+      "resolved_at": null,
+      "notes": null
+    }
+  ]
 }
 ```
 
@@ -411,14 +411,14 @@ ID - The ID of the Dead Letter Entry (not a Drone ID)
 
 ```json
 {
-    "notes": "test resolving a dead letter entry"
+	"notes": "test resolving a dead letter entry"
 }
 ```
 
 **Example Response:**
 ```json
 {
-    "status": "Success :: Dead Letter Entry 1 has been marked as resolved."
+	"status": "Success :: Dead Letter Entry 1 has been marked as resolved."
 }
 ```
 
