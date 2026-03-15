@@ -51,10 +51,16 @@ fastify.post<{ Body: RawDroneTelemetry }>(
   async function handler(request, reply) {
     const telemetry = request.body;
 
-    await producer.push(telemetry);
+    //Make the data into an array if it isn't - normalises
+    const events = Array.isArray(telemetry) ? telemetry : [telemetry];
+
+    await producer.pushBatch(events);
 
     reply.statusCode = 202;
-    return { status: "Accepted" };
+    return {
+      status: "Accepted",
+      queued: events.length,
+    };
   },
 );
 
