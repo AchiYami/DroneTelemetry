@@ -165,6 +165,9 @@ PORT=3000
 ```
 
 ### Build the Docker Containers
+
+Ensure that Docker Desktop is running, and then run: 
+
 ```bash
 docker compose up -d
 ```
