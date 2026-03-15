@@ -32,35 +32,51 @@ const TelemetrySchema = z.discriminatedUnion("eventType", [
   //battery updates
   z.object({
     droneId: z.string().min(1),
-    timestamp: z.date(),
+    timestamp: z.string(),
     eventType: z.literal("battery_log"),
-    payload: BatteryLevelSchema,
+    telemetry: BatteryLevelSchema,
   }),
   //delivery updates
   z.object({
     droneId: z.string().min(1),
-    timestamp: z.date(),
-    eventType: z.enum([
-      "delivery_received",
-      "delivery_begin",
-      "delivery_complete",
-      "delivery_failed",
-    ]),
-    payload: DeliveryPayloadSchema,
+    timestamp: z.string(),
+    eventType: z.literal("delivery_received"),
+    telemetry: DeliveryPayloadSchema,
+  }),
+  //delivery updates
+  z.object({
+    droneId: z.string().min(1),
+    timestamp: z.string(),
+    eventType: z.literal("delivery_begin"),
+    telemetry: DeliveryPayloadSchema,
+  }),
+  //delivery updates
+  z.object({
+    droneId: z.string().min(1),
+    timestamp: z.string(),
+    eventType: z.literal("delivery_complete"),
+    telemetry: DeliveryPayloadSchema,
+  }),
+  //delivery updates
+  z.object({
+    droneId: z.string().min(1),
+    timestamp: z.string(),
+    eventType: z.literal("delivery_failed"),
+    telemetry: DeliveryPayloadSchema,
   }),
   //route adjustment updates
   z.object({
     droneId: z.string().min(1),
-    timestamp: z.date(),
+    timestamp: z.string(),
     eventType: z.literal("route_adjustment"),
-    payload: RouteAdjustmentSchema,
+    telemetry: RouteAdjustmentSchema,
   }),
   //shutdown event
   z.object({
     droneId: z.string().min(1),
-    timestamp: z.date(),
+    timestamp: z.string(),
     eventType: z.literal("shutdown"),
-    payload: ShutdownSchema,
+    telemetry: ShutdownSchema,
   }),
 ]);
 
@@ -70,12 +86,11 @@ export type ValidationResult =
   | { valid: true; data: ValidatedTelemetry }
   | { valid: false; reason: string; raw: unknown };
 
-
 //Perform the validation
 export function validate(raw: unknown): ValidationResult {
   const result = TelemetrySchema.safeParse(raw);
 
-//If true, we return the invalid data
+  //If true, we return the invalid data
   if (result.success) {
     return { valid: true, data: result.data };
   }
