@@ -22,6 +22,9 @@ export const createWorker = () => {
           receivedAt: new Date(),
         });
 
+        console.warn(
+          `Dead Letter :: Drone: [${raw.droneId ?? "unknown"}] :: Reason: ${result.reason}`,
+        );
         return;
       }
 
@@ -36,11 +39,13 @@ export const createWorker = () => {
   );
 
   worker.on("completed", (job) => {
-    console.log(`Job ${job.id} completed successfully.`);
+    console.log(
+      `Job [${job.id}] Completed :: Drone: [${job.data.droneId}] :: Event: ${job.data.eventType}`,
+    );
   });
 
   worker.on("failed", (job, error) => {
-    console.error(`Job ${job?.id} failed: ${error.message}`);
+    console.error(`Error :: Job [${job?.id}] :: Failed: ${error.message}`);
   });
 
   return worker;

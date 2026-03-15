@@ -7,17 +7,28 @@ export const deadLetterRepository = {
    * @param telemetry - the dead letter entry to save
    */
   async createDeadLetterEntry(telemetry: DeadLetterEntry): Promise<void> {
-    await pool.query(
-      `INSERT into dead_letter_telemetry
+    try {
+      await pool.query(
+        `INSERT into dead_letter_telemetry
             (raw_payload, failure_reason, drone_id, received_at)
             VALUES ($1, $2, $3, $4)`,
-      [
-        JSON.stringify(telemetry.rawPayload),
-        telemetry.failureReason,
-        telemetry.droneId,
-        telemetry.receivedAt,
-      ],
-    );
+        [
+          JSON.stringify(telemetry.rawPayload),
+          telemetry.failureReason,
+          telemetry.droneId,
+          telemetry.receivedAt,
+        ],
+      );
+    } catch (err) {
+      //Log out error
+      console.error(
+        `Error :: Failed to insert dead letter for Drone [${telemetry.droneId ?? "unknown"}]:`,
+        err,
+      );
+
+      //Throw again so the worker handles it
+      throw err;
+    }
   },
 
   /**
