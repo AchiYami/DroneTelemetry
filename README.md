@@ -622,25 +622,25 @@ A particularly useful piece of debugging with Claude came around attempting to c
 ## Tools Used: 
 
 **Development:**
-Microsoft Visual Studio Code: https://code.visualstudio.com/
-Jetbrains Rider: https://www.jetbrains.com/rider/
-Jetbrains Datagrip: https://www.jetbrains.com/datagrip/
+- Microsoft Visual Studio Code: https://code.visualstudio.com/
+- Jetbrains Rider: https://www.jetbrains.com/rider/
+- Jetbrains Datagrip: https://www.jetbrains.com/datagrip/
 
 **Version Control:**
-Fork : https://git-fork.com/
-Github : https://github.com
+- Fork : https://git-fork.com/
+- Github : https://github.com
 
 **Note Keeping & Diagrams**
-Obsidian: https://obsidian.md/
-Diagram:  https://app.diagrams.net/
-ShareX: https://getsharex.com/
+- Obsidian: https://obsidian.md/
+- Diagram:  https://app.diagrams.net/
+- ShareX: https://getsharex.com/
 
 **Artificial Intelligence**
-Anthropic Claude (Sonnet 4.6): https://claude.ai/
-OpenAI Chat GPT (GPT-5.3): https://chatgpt.com/
+- Anthropic Claude (Sonnet 4.6): https://claude.ai/
+- OpenAI Chat GPT (GPT-5.3): https://chatgpt.com/
 
 **API Testing**
-Postman: https://www.postman.com/
+- Postman: https://www.postman.com/
 
 ## Development/Test Machines
 
