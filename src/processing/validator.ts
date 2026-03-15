@@ -7,6 +7,7 @@ const BatteryLevelSchema = z.object({
 
 //Validate a delivery event
 const DeliveryPayloadSchema = z.object({
+  batteryLevel: z.number(),
   packageId: z.string(),
   recipientId: z.string(),
   latitude: z.number().min(-90).max(90),
