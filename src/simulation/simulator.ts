@@ -15,28 +15,47 @@ const API_URL =
   process.env.DRONE_CREATE_TELEMETRY_API ??
   "http://localhost:3000/createDroneTelemetry";
 
+// Batch buffer per drone
+const eventBuffer: Map<string, Record<string, unknown>[]> = new Map();
+const BATCH_SIZE = 5; // send every 5 events
+
+async function flushBatch(droneId: string) {
+  const events = eventBuffer.get(droneId) ?? [];
+  if (events.length === 0) return;
+
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(events),
+    });
+    console.log(`Drone [${droneId}] :: Batched ${events.length} events`);
+    eventBuffer.set(droneId, []);
+  } catch (err) {
+    console.error(`Drone [${droneId}] :: Error :: Failed to send batch:`, err);
+  }
+}
+
 async function sendEvent(
   droneId: string,
   eventType: DroneEvent,
   telemetry: Record<string, unknown>,
 ) {
-  try {
-    await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        droneId,
-        timestamp: new Date().toISOString(),
-        eventType,
-        telemetry,
-      }),
-    });
-    console.log(`Drone [${droneId} :: Event :: ${eventType}]`);
-  } catch (err) {
-    console.error(
-      `Drone [${droneId}] :: Error :: Failed to send event ${eventType}`,
-      err,
-    );
+  const event = {
+    droneId,
+    timestamp: new Date().toISOString(),
+    eventType,
+    telemetry,
+  };
+
+  // Buffer the event
+  const buffer = eventBuffer.get(droneId) ?? [];
+  buffer.push(event);
+  eventBuffer.set(droneId, buffer);
+
+  // Flush when batch size reached
+  if (buffer.length >= BATCH_SIZE) {
+    await flushBatch(droneId);
   }
 }
 
