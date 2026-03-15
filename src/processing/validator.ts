@@ -12,9 +12,6 @@ const DeliveryPayloadSchema = z.object({
   recipientId: z.string(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
-  deliveriesReceived: z.number().min(0),
-  deliveriesAttempted: z.number().min(0),
-  deliveriesCompleted: z.number().min(0),
 });
 
 //Validate a route adjustment event
