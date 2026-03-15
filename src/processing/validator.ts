@@ -25,7 +25,12 @@ const RouteAdjustmentSchema = z.object({
 
 //Validate a shutdown event
 const ShutdownSchema = z.object({
-  reason: z.enum(["route_complete", "maintenance", "unexpected"]),
+  reason: z.enum([
+    "battery_depleted",
+    "route_complete",
+    "maintenance",
+    "unexpected",
+  ]),
 });
 
 const TelemetrySchema = z.discriminatedUnion("eventType", [
