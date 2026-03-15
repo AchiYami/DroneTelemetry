@@ -610,7 +610,7 @@ In the design of this system I have made the following assumptions:
 
 For the duration of this project, I used mostly Anthropic's Claude (Sonnet 4.6), apart from a specific timeframe in which Claude was down, in which case Chat GPT (GPT-5.3).
 
-Claude was used in the context of a pair programmer to bounce ideas off, help compare frameworks at a glance, and to help debug errors. 
+Claude was used in the context of a pair programmer to bounce ideas off, help compare frameworks at a glance, and to help debug errors. IT was also used to help generate configuration files, like tsconfig, that would suit my chosen frameworks. 
 
 During development of the test suite, Claude was used to generate boilerplate code, as most of the unit tests are quite simple and repetitive. 
 
