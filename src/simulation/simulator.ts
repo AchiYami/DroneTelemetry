@@ -66,7 +66,7 @@ function startSimulator() {
   Array.from(
     { length: DRONE_COUNT },
     (_, i) =>
-      //Add some leading zeroes to the start of the drone ID -- maybe remove this...?
+      //Add some leading zeroes to the start of the drone ID
       `drone-${String(i + 1).padStart(2, "0")}`,
   ).forEach((droneId, index) => {
     setTimeout(() => {
