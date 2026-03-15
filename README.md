@@ -1,3 +1,4 @@
+# Autonomous Drone Telemetry Pipeline 
 
 A TypeScript event-driven pipeline for ingesting, validating, and storing telemetry data from a fleet of autonomous delivery drones.
 
@@ -8,6 +9,7 @@ This system ingests a continuous stream of telemetry events from a fleet of deli
 Any malformed, corrupt or bad data is stored in a separate dead letter table, for later analysis, with the options to mark as resolved. 
 
 ## Architecture
+![Architecture Diagram](images/architecture.png)
 
 
 
@@ -18,7 +20,9 @@ Drones are designed to randomly switch states, and emit an event upon reaching t
 
 This also allows us to add more layers into the system at a later date that can just subscribe listeners to the drones events, rather than having to tell the drone to send information to this new system. 
 
-**Potential Drone Events**
+<details>
+<summary>Potential Drone Events</summary>
+	
 - "battery_log"
 - "delivery_received"
 - "delivery_begin"
@@ -27,14 +31,17 @@ This also allows us to add more layers into the system at a later date that can 
 - "route_adjustment"
 	- Route Adjustment contains deliberate bad data, if a drone ever chooses "traffic" as the reason, this is to ensure the dead letter queue functions during the simulation (though due to the random nature of the simulator, this option is not guaranteed to appear during any single run)
 - "shutdown"
+</details>
 
-**Potential Drone States:**
+<details>
+<summary>Potential Drone States</summary>
+	
 - Idle
 	- The drone is at rest.
-- Delivery Received: 
-	     - The drone has received a new delivery for it's route
-- Delivery Begin    
-	- The drone has chosen to deliver the next parcel
+- Delivery Received:
+ 	- The drone has received a new delivery for it's route
+- Delivery Begin
+ 	- The drone has chosen to deliver the next parcel
 	- During this state the drone can detect a need to adjust it's route
 	- During this state the drone can fail to deliver
 	- During this state the drone can complete it's delivery
@@ -42,10 +49,13 @@ This also allows us to add more layers into the system at a later date that can 
 	- The drone reports a failure and returns to idle
 - Delivery Complete
 	- The drone reports a completed delivery and returns to idle
+</details>
 
 **Default Settings:** (src/simulation/simulator.ts)
 - 25 Drones (DRONE_COUNT)
 - Batches events in groups of 5 (BATCH_SIZE)
+
+---
 
 ### API Frameworks
 **Frameworks Considered:** 
@@ -58,6 +68,8 @@ This also allows us to add more layers into the system at a later date that can 
 **Reason:** I chose Fastify for its native TypeScript support and significantly higher throughput than Express. 
 
 Although this implementation stays at a basic level,  the idea is that this system would scale as the drone fleet grows, which means that a higher throughput will result in a more robust and resilient system.
+
+---
 
 ### Asynchronous Processing / Queue
 
@@ -81,6 +93,7 @@ This gives us a decoupled system in which:
 - Jobs stay in the queue until acknowledged, which keeps us safe in the event a worker crashes.
 - Retries are handled automatically
 
+---
 
 ### Database
 
@@ -97,6 +110,8 @@ Both MongoDB and PostgreSQL (with it's JSONB columns) would support the differin
 This is helpful to us because the requirements specifically mention analysis and monitoring, here a SQL database would outperform a NoSQL database like MongoDB.
 
 That being said, depending on the scaling strategy for this system, MongoDB may be better as it deals with horizontal scaling better than Postgres would. (https://www.mongodb.com/resources/basics/scaling)
+
+---
 
 ### Validation 
 
@@ -192,7 +207,9 @@ The API will return a '202 Accepted' response immediately, as it hands the proce
 
 Use an example below for the request body:
 
-**Single Valid Telemetry Payload:**
+<details>
+<summary>Single Valid Telemetry Payload</summary>
+
 ```json
 {
   "droneId": "drone-01",
@@ -203,8 +220,11 @@ Use an example below for the request body:
   }
 }
 ```
+</details>
 
-**Batch Valid Telemetry Payload:**
+<details>
+<summary>Batch Valid Telemetry Payload</summary>
+	
 ```json
 [
   {
@@ -227,9 +247,12 @@ Use an example below for the request body:
   }
 ]
 ```
+</details>
 
-**Single Invalid Payload** 
 
+<details>
+	<summary>Single Invalid Payload</summary>
+	
 This payload will fail validation on battery level being above 100.
 
 ```json
@@ -242,10 +265,14 @@ This payload will fail validation on battery level being above 100.
   }
 }
 ```
+</details>
 
-**Batch Mixed (Valid & Invalid) Payload**
 
-This payload will fail validation on a single entry. The first four entries will process as expected, but the final entry will fail on it's battery level being higher than 100. 
+
+<details>
+	<summary>Batch Mixed (Valid & Invalid) Payload</summary>
+	This payload will fail validation on a single entry. 
+	The first four entries will process as expected, but the final entry will fail on it's battery level being higher than 100. 
 
 ```json
 [
@@ -297,12 +324,14 @@ This payload will fail validation on a single entry. The first four entries will
   }
 ]
 ```
+</details>
 
 **Example Response:**
 ```json
 { "status": "Accepted", "queued": 2 }
 ```
 
+---
 
 ### `GET /telemetry/:droneId`
 
@@ -311,7 +340,9 @@ Returns all telemetry events for a specific drone, ordered by timestamp descendi
 **Example Request**
 `GET localhost:3000/droneTelemetry/drone-999`
 
-**Example Response**
+<details>
+	<summary>Example Response</summary>
+	
 ```json
 {
   "count": 2,
@@ -343,14 +374,20 @@ Returns all telemetry events for a specific drone, ordered by timestamp descendi
   ]
 }
 ```
+</details>
+
+---
 
 ### `GET /deadLetter/`
 Returns all unresolved dead letter telemetry
 
-**Example Request**:
+Example Request:
 `GET localhost:3000/deadLetter/`
 
-**Example Response**
+
+<details>
+	<summary>Example Response</summary>
+	
 ```json
 {
   "count": 2,
@@ -396,7 +433,9 @@ Returns all unresolved dead letter telemetry
   ]
 }
 ```
+</details>
 
+---
 
 ### `PUT /deadLetter/{id}/resolve`
 
@@ -481,7 +520,8 @@ docker compose exec postgres psql -U sc_user -d drone_telemetry -c "<SQL QUERY>"
 
 or through a Database browser. 
 
-<<IMAGE OF DATAGRIP SETTINGS>>
+![Database Setup Diagram](images/datagripSetup.png)
+
 
 (An example of the Database setup in JetBrains Datagrip, check the docker-compose.yaml for valid username, password & port values)
 
@@ -542,6 +582,8 @@ In the design of this system I have made the following assumptions:
 - A drone does not take it's location of shutdown into consideration.
 - For the purposes of having the system run in a reasonable timeframe, the 'travel time' from delivery to delivery is not taken into consideration.
 
+---
+
 ### Further Considerations
 - **WebSocket Alerting**: 
 	- For example, creating real-time alerts that push to dashboard when a drone's battery drops below a threshold (similar to the low battery warning event)
@@ -557,6 +599,7 @@ In the design of this system I have made the following assumptions:
 		- Does the API/Queue correctly write to the dead letter table? 
 		- Does the Pipeline work end-to-end? (From the beginning of the API to successfully writing to the database)
 
+---
 
 ### Challenges
 - As mentioned above, there was an issue in which another instance of Postgres was running and conflicting with the ports. I had assumed my dev environment was 'clean'.
