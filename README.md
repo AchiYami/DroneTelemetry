@@ -151,7 +151,7 @@ This means a drone that is beginning to malfunction can be tracked, and logs of 
 ### Installation
 ```bash
 git clone https://github.com/AchiYami/DroneTelemetry
-cd drone-telemetry
+cd DroneTelemetry
 npm install
 ```
 
