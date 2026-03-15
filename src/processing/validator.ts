@@ -12,7 +12,9 @@ const DeliveryPayloadSchema = z.object({
   recipientId: z.string(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
+  reason: z.string().optional(),
 });
+
 
 //Validate a route adjustment event
 const RouteAdjustmentSchema = z.object({
