@@ -3,9 +3,11 @@ import Fastify from "fastify";
 import pool from "./db/dbClient";
 import { RawDroneTelemetry } from "./types/rawDroneTelemetry";
 import { droneTelemetryRepository } from "./db/droneTelemetry.repository";
-import { ValidDroneTelemetry } from "./types/validDroneTelemetry";
 import { deadLetterRepository } from "./db/deadLetter.repository";
-import { DeadLetterEntry } from "./types/deadLetterTelemetry";
+import { producer } from "./queue/producer";
+import { createWorker } from "./queue/worker";
+
+createWorker();
 
 const fastify = Fastify({
   logger: true,
@@ -36,7 +38,7 @@ fastify.get<{ Params: { droneId: string } }>(
 
     if (results.length === 0) {
       reply.statusCode = 404;
-      return { status: `Error :: No results were found for Drone ${droneId}`};
+      return { status: `Error :: No results were found for Drone ${droneId}` };
     }
 
     reply.statusCode = 200;
@@ -49,36 +51,10 @@ fastify.post<{ Body: RawDroneTelemetry }>(
   async function handler(request, reply) {
     const telemetry = request.body;
 
-    if (
-      telemetry.droneId === null ||
-      telemetry.droneId === undefined ||
-      telemetry.droneId.length === 0
-    ) {
-      //Internal logging
-      fastify.log.error("Error :: Drone has no ID");
+    await producer.push(telemetry);
 
-      //add to dead letter table
-      const deadLetter: DeadLetterEntry = {
-        droneId: "unknown",
-        failureReason: "Missing Drone ID",
-        rawPayload: JSON.stringify(telemetry),
-        receivedAt: new Date(),
-      };
-      deadLetterRepository.createDeadLetterEntry(deadLetter);
-
-      //User error
-      reply.statusCode = 400;
-      return { status: "Error :: Drone has no ID." };
-    }
-
-    const validatedTelemetry: ValidDroneTelemetry = {
-      droneId: telemetry.droneId,
-      timestamp: new Date(telemetry.timestamp),
-      eventType: telemetry.eventType,
-      telemetry: telemetry.telemetry,
-    };
-
-    droneTelemetryRepository.createTelemetryEntry(validatedTelemetry);
+    reply.statusCode = 202;
+    return { status: "Accepted" };
   },
 );
 
