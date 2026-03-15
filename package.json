@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+    "simulate": "ts-node src/simulation/simulator.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest"
