@@ -1,28 +1,20 @@
 import "dotenv/config";
 import Fastify from "fastify";
-import pool from "./db/dbClient";
 import { RawDroneTelemetry } from "./types/rawDroneTelemetry";
 import { droneTelemetryRepository } from "./db/droneTelemetry.repository";
 import { deadLetterRepository } from "./db/deadLetter.repository";
 import { producer } from "./queue/producer";
 import { createWorker } from "./queue/worker";
 
+//Create the worker
 createWorker();
 
+//Initialize Fastify
 const fastify = Fastify({
   logger: true,
 });
 
-fastify.get("/", async function handler(request, reply) {
-  return "Hello World!";
-});
-
-fastify.get("/testConnection", async function handler(request, reply) {
-  const db = pool;
-
-  return `Database Connection String: ${db.options.connectionString}`;
-});
-
+// Get Drone Telemtry by Drone ID
 fastify.get<{ Params: { droneId: string } }>(
   "/droneTelemetry/:droneId",
   async function handler(request, reply) {
@@ -46,6 +38,7 @@ fastify.get<{ Params: { droneId: string } }>(
   },
 );
 
+//Create Drone Telemetry
 fastify.post<{ Body: RawDroneTelemetry }>(
   "/createDroneTelemetry",
   async function handler(request, reply) {
@@ -64,34 +57,7 @@ fastify.post<{ Body: RawDroneTelemetry }>(
   },
 );
 
-fastify.get<{ Params: { droneId: string | null } }>(
-  "/deadLetter/droneId/:droneId",
-  async function handler(request, reply) {
-    let { droneId } = request.params;
-
-    //Allow for the potential of an empty droneId parameter to return any
-    //entries with missing drone IDs
-    if (droneId === null || droneId === undefined || droneId.length === 0) {
-      droneId = "unknown";
-    }
-
-    console.log("Drone ID is:", droneId);
-
-    const results =
-      await deadLetterRepository.getDeadLetterEntryByDroneId(droneId);
-
-    if (results.length === 0) {
-      reply.statusCode = 404;
-      return {
-        status: `Error :: No dead letter results were found for Drone ${droneId}`,
-      };
-    }
-
-    reply.statusCode = 200;
-    return { count: results.length, results };
-  },
-);
-
+//Get all Dead letter telemetry
 fastify.get("/deadLetter/", async function handler(request, reply) {
   const results = await deadLetterRepository.getUnresolvedDeadLetterEntries();
 
@@ -103,6 +69,7 @@ fastify.get("/deadLetter/", async function handler(request, reply) {
   return { count: results.length, results };
 });
 
+//Mark dead letter entry as resolved
 fastify.put<{ Params: { id: number }; Body: { notes: string | undefined } }>(
   "/deadLetter/:id/resolve",
   async function handler(request, reply) {
@@ -126,6 +93,7 @@ fastify.put<{ Params: { id: number }; Body: { notes: string | undefined } }>(
   },
 );
 
+//Start the service
 const start = async () => {
   try {
     await fastify.listen({ port: 3000 });
